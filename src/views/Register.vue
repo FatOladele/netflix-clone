@@ -7,10 +7,10 @@
           src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/2560px-Netflix_2015_logo.svg.png"
           alt=""
         />
-        <button class="loginButton">Sign In</button>
+        <button class="loginButton" @click="signin">Sign In</button>
       </div>
     </div>
-    <div class="container">
+    <div class="containers">
       <h1>Unlimited movies, TV shows, and more.</h1>
       <h2>Watch anywhere. Cancel anytime.</h2>
       <p>
@@ -31,12 +31,14 @@
           </button>
         </div>
       </div>
-      <p v-if="showError" class="text-red-900">{{errorMsg}}</p>
+      <p v-if="showError" class="error_msg">{{errorMsg}}</p>
     </div>
   </div>
 </template>
 
 <script>
+import api from '../utils/api'
+import { mapActions } from 'vuex'
 export default {
   data() {
     return {
@@ -49,6 +51,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions('auth', ['login']),
     validateEmail(email) {
       return String(email)
         .toLowerCase()
@@ -60,7 +63,7 @@ export default {
       if(this.validateEmail(this.email)) {
         this.step = 2
         this.showError = false
-        this.errorMsg = 'false'
+        this.errorMsg = ''
       } else {
         this.showError = true
         this.errorMsg = 'Invalid Email'
@@ -69,11 +72,27 @@ export default {
     handleFinish() {
       if(this.password.match(/^[A-Za-z]\w{7,14}$/)) {
         this.showError = false
-        this.errorMsg = 'false'
+        this.errorMsg = ''
+        const obj = {
+          email: this.email,
+          username: this.username,
+          password: this.password
+        }
+        api.post('/api/auth/register', obj).then(res => {
+          this.login(res.data)
+        }).catch(err => {
+          console.log(err)
+          this.showError = true
+          this.errorMsg = err.response.data.msg
+          if (this.errorMsg.includes("E-mail")) this.step = 1
+        })
       } else {
         this.showError = true
         this.errorMsg = 'Password must be between 7 to 15 characters'
       }
+    },
+    signin () {
+      this.$router.push('/login')
     }
   }
 }
@@ -93,12 +112,13 @@ export default {
   position: relative;
 
   .top {
+    position: relative;
+    z-index: 2;
     .wrapper {
       padding: 20px 50px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-
       .logo {
         height: 40px;
       }
@@ -112,11 +132,15 @@ export default {
         font-size: 16px;
         font-weight: 500;
         cursor: pointer;
+        transition: background-color 1s;
+        &:hover {
+          background-color: rgb(250, 108, 108);
+        }
       }
     }
   }
 
-  .container {
+  .containers {
     width: 100%;
     height: 100%;
     position: absolute;
@@ -127,7 +151,7 @@ export default {
     align-items: center;
     justify-content: center;
     color: white;
-
+    // z-index: -1;
     h1 {
       font-size: 50px;
     }
@@ -170,10 +194,16 @@ export default {
           color: white;
           font-size: 22px;
           cursor: pointer;
+          transition: background-color 1s;
+          &:hover {
+            background-color: rgb(250, 108, 108);
+          }
         }
       }
     }
-
+    .error_msg{
+      color: red
+    }
   }
 }
 </style>

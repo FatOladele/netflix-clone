@@ -8,7 +8,7 @@
         <span class="material-icons">arrow_back_ios</span>
       </div>
       <div class="containers" ref="listRef">
-        <list-item v-for="i in 10" :key="i"></list-item>
+        <list-item v-for="i in listItems" :item="i" :key="i._id"></list-item>
       </div>
       <div class=" slider_arrow right" @click.prevent="moveList('right')" :style="{ 'display': (slideNumber > 10)? 'none' : 'flex'}">
         <span class="material-icons">arrow_forward_ios</span>
@@ -31,16 +31,16 @@ export default {
   },
   methods: {
     moveList(direction) {
-      let distance = this.$refs.listRef.getBoundingClientRect().x - 50
+      let distance = this.$refs.listRef.getBoundingClientRect().x - 60
       if (direction === "left" && this.slideNumber > 0) {
         this.slideNumber -= 1
-        this.$refs.listRef.style.transform = `translateX(${230 + distance}px)`
+        this.$refs.listRef.style.transform = `translateX(${235 + distance}px)`
         return
       }
-      const clickLimit = window.innerWidth / 230
+      const clickLimit = window.innerWidth / 235
       if (direction === "right" && this.slideNumber < 10 - clickLimit) {
         this.slideNumber += 1
-        this.$refs.listRef.style.transform = `translateX(${-230 + distance}px)`
+        this.$refs.listRef.style.transform = `translateX(${-235 + distance}px)`
         return
       }
     }
@@ -86,6 +86,7 @@ export default {
     }
     .containers {
       margin-left: 50px;
+      margin-right: 50px;
       display: flex;
       margin-top: 10px;
       width: max-content;

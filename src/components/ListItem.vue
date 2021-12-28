@@ -4,9 +4,9 @@
       @mouseover="hover = true"
       @mouseleave="hover = false"
     >
-      <img src="../assets/Venom2.jpg" alt="">
+      <img :src="(hover)? bannerImg : posterImg" alt="">
       <div v-if="hover">
-        <video src="../assets/trailer.mp4" autoplay="true" loop />
+        <!-- <video src="../assets/trailer.mp4" autoplay="true" loop /> -->
         <div class="item_info">
           <div class="icons">
             <span class="material-icons icon">play_arrow</span>
@@ -15,24 +15,60 @@
             <span class="material-icons icon">thumb_down_off_alt</span>
           </div>
           <div class="item_info_top">
-            <span>30 Mins</span>
-            <span class="limit">PG 13</span>
-            <span>1995</span>
+            <span>{{(item.isSeries)? 'Series': 'Movie'}}</span>
+            <span class="limit">{{item.rating}}/10</span>
+            <span>{{item.year.slice(0, 4)}}</span>
           </div>
         </div>
-        <div class="desc">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quam distinctio consectetur molestiae eligendi libero ipsam assumenda ullam neque accusantium impedit?</div>
-        <div class="genre">Comedy</div>
+        <div class="desc">{{item.desc}}</div>
       </div>
     </div>
   </router-link>
 </template>
 
 <script>
+import axios from "axios";
 export default {
+  props: ['item'],
+  beforeMount() {
+    this.downloadBanner()
+    this.downloadPoster()
+  },
+  computed: {
+    // banner() {
+    //   return
+    // }
+  },
   data() {
     return {
       trailer: "https://player.vimeo.com/video/547584890?h=821d72d57a&color=ffffff&title=0&byline=0&portrait=0",
-      hover: false
+      hover: false,
+      bannerImg: null,
+      posterImg: null
+    }
+  },
+  methods: {
+    async downloadBanner() {
+      const bannerUrl = 'https://image.tmdb.org/t/p/w300' + this.item.backdrop
+      var base64 = await axios
+        .get(bannerUrl, {
+          responseType: "arraybuffer"
+        })
+        .then(response =>
+          Buffer.from(response.data, "binary").toString("base64")
+        )
+      this.bannerImg = "data:image/jpeg;base64, " + base64
+    },
+    async downloadPoster() {
+      const bannerUrl = 'https://image.tmdb.org/t/p/w300' + this.item.poster
+      var base64 = await axios
+        .get(bannerUrl, {
+          responseType: "arraybuffer"
+        })
+        .then(response =>
+          Buffer.from(response.data, "binary").toString("base64")
+        )
+      this.posterImg = "data:image/jpeg;base64, " + base64
     }
   }
 }
@@ -41,9 +77,9 @@ export default {
 <style lang="scss">
 .list_item {
   width: 225px;
-  height: 120px;
+  height: 335px;
   background-color: var(--main-color);
-  margin-right: 5px;
+  margin-right: 10px;
   overflow: hidden;
   cursor: pointer;
   color: white;
@@ -65,15 +101,15 @@ export default {
 
   &:hover {
     width: 325px;
-    height: 300px;
-    position: absolute;
-    top: -150px;
+    height: 335px;
+    // position: absolute;
+    // top: -150px;
     -webkit-box-shadow: 0px 0px 15px 0px rgba(255, 255, 255, 0.07);
     box-shadow: 0px 0px 15px 0px rgba(255, 255, 255, 0.07);
     border-radius: 5px;
 
     img {
-      height: 140px;
+      height: 160px;
     }
 
     .item_info {

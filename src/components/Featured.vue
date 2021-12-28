@@ -1,34 +1,22 @@
 <template>
   <div class="featured">
     <div v-if="type" class="category">
-      <span>{{type}}</span>
+      <span class="type_text">{{type}}</span>
       <select name="genre" id="genre" v-model="genreSelect">
-        <option value="">Genre</option>
-        <option value="adventure">Adventure</option>
-        <option value="comedy">Comedy</option>
-        <option value="crime">Crime</option>
-        <option value="fantasy">Fantasy</option>
-        <option value="historical">Historical</option>
-        <option value="horror">Horror</option>
-        <option value="romance">Romance</option>
-        <option value="sci-fi">Sci-fi</option>
-        <option value="thriller">Thriller</option>
-        <option value="western">Western</option>
-        <option value="animation">Animation</option>
-        <option value="drama">Drama</option>
-        <option value="documentary">Documentary</option>
+        <option value="">All</option>
+        <option v-for="g in genre" :key="g.id" :value="g.id">{{g.name}}</option>
       </select>
     </div>
     <img
-      src="https://www.looper.com/img/gallery/the-matrix-4-will-reportedly-start-something-big/intro-1576775790.jpg"
+      :src="featured && `https://image.tmdb.org/t/p/original${featured.backdrop}`"
       alt=""
     />
     <div class="info">
       <img
-        src="https://www.pngarts.com/files/9/Matrix-Logo-Transparent-Image.png"
+        :src="featured && featured.imgTitle"
         alt=""
       />
-      <span class="desc">Lorem ipsum dolor sit amet.</span>
+      <span class="desc">{{featured && featured.desc}}</span>
       <div class="buttons">
         <button class="play">
           <span class="material-icons text-black">play_arrow</span>
@@ -45,17 +33,44 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+import api from '../utils/api'
 export default {
-  props: ['type', 'genre', 'info'],
+  props: ['type', 'genre'],
+  beforeCreate() {
+    api.get('/api/movies/featured').then(res => {
+      this.featured = res.data
+    }).catch(err => {
+      console.log(err)
+    })
+  },
+  computed: {
+    ...mapGetters('apps', ['getMoviesGenre', 'getSeriesGenre'])
+  },
   data() {
     return {
-      genreSelect: ''
+      genreSelect: '',
+      featured: null
     }
   },
   watch: {
     genreSelect(val) {
+      this.$emit('genre-select', this.genreSelect)
+    },
+    type(val) {
+      this.genreSelect=''
       if(val) {
-        alert(val)
+        api.get(`/api/movies/featured?type=${val}`).then(res => {
+          this.featured = res.data
+        }).catch(err => {
+          console.log(err)
+        })
+      } else {
+        api.get('/api/movies/featured').then(res => {
+          this.featured = res.data
+        }).catch(err => {
+          console.log(err)
+        })
       }
     }
   }
@@ -87,7 +102,9 @@ export default {
     color: white;
     display: flex;
     align-items: center;
-
+    .type_text{
+      text-transform: capitalize;
+    }
     select {
       cursor: pointer;
       background-color: var(--main-color);

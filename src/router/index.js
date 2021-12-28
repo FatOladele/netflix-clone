@@ -3,40 +3,19 @@ import Home from '../views/Home.vue';
 import Watch from '../views/Watch.vue';
 import Register from '../views/Register.vue';
 import Login from '../views/Login.vue';
+import { requireAuth } from '../utils/auth'
 
 const routes = [
   {
     path: '/',
     name: 'Home',
     component: Home,
-  },
-  {
-    path: '/series',
-    name: 'Series',
-    component: Home,
-    props: () => {
-      return {
-        type: 'Series',
-        genre: null,
-        list: []
-      }
-    }
-  },
-  {
-    path: '/movies',
-    name: 'Movies',
-    component: Home,
-    props: () => {
-      return {
-        type: 'Movies',
-        genre: null,
-        list: []
-      }
-    }
+    beforeEnter: requireAuth
   },
   {
     path: '/watch',
     name: 'Watch',
+    beforeEnter: requireAuth,
     component: Watch,
   },
   {
@@ -48,6 +27,17 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login,
+  },
+  {
+    path: '/:type',
+    component: Home,
+    beforeEnter: requireAuth,
+    props: (route) => {
+      return {
+        type: route.params.type,
+        genre: route.query.genre
+      }
+    }
   },
 ];
 

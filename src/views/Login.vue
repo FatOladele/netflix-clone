@@ -12,17 +12,18 @@
     <div class="containers">
       <form>
         <h1>Sign In</h1>
+        <p v-if="showError">{{errorMsg}}</p>
         <input
           type="email"
-          placeholder="Email or phone number"
-
+          placeholder="Email or Username"
+          v-model="email"
         />
         <input
           type="password"
           placeholder="Password"
-
+          v-model="password"
         />
-        <button class="loginButton">
+        <button class="loginButton" @click.prevent="userLogin">
           Sign In
         </button>
         <span>
@@ -38,8 +39,38 @@
 </template>
 
 <script>
+import api from '../utils/api'
+import { mapActions } from 'vuex'
 export default {
-
+  data () {
+    return {
+      email: '',
+      password: '',
+      showError: false,
+      errorMsg: ""
+    }
+  },
+  methods: {
+    ...mapActions('auth', ['login']),
+    userLogin () {
+      if(this.password.match(/^[A-Za-z]\w{7,14}$/)) {
+        const obj = {
+          email: this.email,
+          password: this.password
+        }
+        api.post('/api/auth/login', obj).then(res => {
+          this.login(res.data)
+        }).catch(err => {
+          console.log(err)
+          this.showError = true
+          this.errorMsg = err.response.data.msg
+        })
+      } else {
+        this.showError = true
+        this.errorMsg = 'Password must be between 7 to 15 characters'
+      }
+    }
+  }
 }
 </script>
 
@@ -93,6 +124,9 @@ export default {
       flex-direction: column;
       justify-content: space-around;
 
+      p{
+        color: red
+      }
       input {
         height: 40px;
         border-radius: 5px;

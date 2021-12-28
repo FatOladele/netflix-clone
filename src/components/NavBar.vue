@@ -6,15 +6,15 @@
           src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/2560px-Netflix_2015_logo.svg.png"
           alt=""
         />
-        <router-link to="/" class="link"> Homepage</router-link>
+        <router-link to="/" class="link"> Home</router-link>
         <router-link to="/series" class="link">Series</router-link>
-        <router-link to="/movies" class="link">movies</router-link>
+        <router-link to="/movies" class="link">Movies</router-link>
         <span>New and Popular</span>
         <span>My List</span>
       </div>
       <div class="right">
         <span class="material-icons icon">search</span>
-        <span>Ola</span>
+        <span>{{getUser.username}}</span>
         <span class="material-icons icon">notifications</span>
         <img
           src="https://images.pexels.com/photos/6899260/pexels-photo-6899260.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500"
@@ -24,7 +24,7 @@
           <span class="material-icons icon">arrow_drop_down</span>
           <div class="options">
             <span>Settings</span>
-            <span>Logout</span>
+            <span @click="logout">Logout</span>
           </div>
         </div>
       </div>
@@ -33,7 +33,11 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from 'vuex'
 export default {
+  computed: {
+    ...mapGetters('auth', ['getUser'])
+  },
   data() {
     return {
       isScrolled: false,
@@ -43,6 +47,7 @@ export default {
     window.addEventListener('scroll', this.handleScroll)
   },
   methods: {
+    ...mapActions('auth', ['logout']),
     handleScroll() {
       this.isScrolled = (window.pageYOffset > 0)? true: false
     }
